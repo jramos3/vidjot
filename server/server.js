@@ -1,6 +1,8 @@
 const express = require("express");
 const exphbs = require("express-handlebars");
 
+const { mongoose } = require("./db/mongoose");
+
 const app = express();
 
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
