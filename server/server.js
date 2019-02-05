@@ -3,6 +3,8 @@ const exphbs = require("express-handlebars");
 const bodyParser = require("body-parser");
 const methodOverride = require("method-override");
 const { body, validationResult } = require("express-validator/check");
+const flash = require("connect-flash");
+const session = require("express-session");
 
 const { mongoose } = require("./db/mongoose");
 const { Idea } = require("./models/Idea");
@@ -19,6 +21,26 @@ app.use(methodOverride("_method"));
 //handlebars middleware
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
+
+//express-session middleware
+app.use(
+  session({
+    secret: "secret",
+    resave: true,
+    saveUninitialized: true
+  })
+);
+
+//connect-flash middleware
+app.use(flash());
+
+//Global variables
+app.use((req, res, next) => {
+  res.locals.successMsg = req.flash("successMsg");
+  res.locals.errorMsg = req.flash("errorMsg");
+  res.locals.error = req.flash("error");
+  next();
+});
 
 //GET /
 app.get("/", (req, res) => {
@@ -86,6 +108,7 @@ app.post(
       new Idea(newIdea)
         .save()
         .then(idea => {
+          req.flash("successMsg", "Video idea added.");
           res.redirect("/ideas");
         })
         .catch(err => res.status(400));
@@ -125,6 +148,7 @@ app.put(
 
       Idea.findByIdAndUpdate(id, { $set: updatedIdea }, { new: true })
         .then(idea => {
+          req.flash("successMsg", "Video idea updated.");
           res.redirect("/ideas");
         })
         .catch(err => res.status(400));
@@ -138,6 +162,7 @@ app.delete("/ideas/:id", (req, res) => {
 
   Idea.findByIdAndDelete(id)
     .then(idea => {
+      req.flash("successMsg", "Video idea deleted.");
       res.redirect("/ideas");
     })
     .catch(err => res.status(400));
