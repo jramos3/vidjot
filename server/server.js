@@ -132,6 +132,17 @@ app.put(
   }
 );
 
+//DELETE /ideas/:id
+app.delete("/ideas/:id", (req, res) => {
+  const { id } = req.params;
+
+  Idea.findByIdAndDelete(id)
+    .then(idea => {
+      res.redirect("/ideas");
+    })
+    .catch(err => res.status(400));
+});
+
 app.listen(3000, () => {
   console.log("Server started on port 3000");
 });
